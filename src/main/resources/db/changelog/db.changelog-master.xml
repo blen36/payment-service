@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns:mongodb="http://www.liquibase.org/xml/ns/mongodb"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd
+                   http://www.liquibase.org/xml/ns/mongodb https://www.liquibase.org/xml/ns/mongodb/liquibase-mongodb-latest.xsd">
+    <changeSet id="21-001-create-payments" author="payment-service">
+        <mongodb:runCommand>
+            <mongodb:command><![CDATA[{
+                "create": "payments",
+                "validator": {"$jsonSchema": {
+                    "bsonType": "object",
+                    "required": ["_id", "order_id", "user_id", "status", "timestamp", "payment_amount"],
+                    "properties": {
+                        "_id": {"bsonType": "string"},
+                        "order_id": {"bsonType": "long", "minimum": 1},
+                        "user_id": {"bsonType": "long", "minimum": 1},
+                        "status": {"enum": ["SUCCESS", "FAILED"]},
+                        "timestamp": {"bsonType": "date"},
+                        "payment_amount": {"bsonType": "decimal", "minimum": 0}
+                    }
+                }},
+                "validationLevel": "strict",
+                "validationAction": "error"
+            }]]></mongodb:command>
+        </mongodb:runCommand>
+    </changeSet>
+    <changeSet id="21-002-payment-indexes" author="payment-service">
+        <mongodb:runCommand>
+            <mongodb:command><![CDATA[{
+                "createIndexes": "payments",
+                "indexes": [
+                    {"name": "payments_user_time", "key": {"user_id": 1, "timestamp": -1, "_id": -1}},
+                    {"name": "payments_order_time", "key": {"order_id": 1, "timestamp": -1, "_id": -1}},
+                    {"name": "payments_status_time", "key": {"status": 1, "timestamp": -1, "_id": -1}},
+                    {"name": "payments_time", "key": {"timestamp": -1, "_id": -1}},
+                    {"name": "payments_one_success_per_order", "key": {"order_id": 1},
+                     "unique": true, "partialFilterExpression": {"status": "SUCCESS"}}
+                ]
+            }]]></mongodb:command>
+        </mongodb:runCommand>
+    </changeSet>
+</databaseChangeLog>
