@@ -7,6 +7,8 @@ import org.mapstruct.*;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.ERROR)
 public interface PaymentMapper {
+    @Mapping(target = "eventPublished", ignore = true)
+    @Mapping(target = "eventPublishedAt", ignore = true)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "timestamp", ignore = true)

@@ -31,7 +31,9 @@ public class PaymentService {
     public PaymentView create(CreatePayment request, PaymentAccess access, String token) {
         var order = orders.get(request.orderId(), token);
         access.requireOwner(order.user().id());
-        if (!"NEW".equals(order.status())) throw PaymentApiException.conflict("Only a NEW order can be paid");
+        if (!"NEW".equals(order.status()) && !"PAYMENT_FAILED".equals(order.status())) {
+            throw PaymentApiException.conflict("Only a NEW or PAYMENT_FAILED order can be paid");
+        }
         if (payments.existsByOrderIdAndStatus(request.orderId(), PaymentStatus.SUCCESS)) {
             throw PaymentApiException.conflict("This order already has a successful payment");
         }

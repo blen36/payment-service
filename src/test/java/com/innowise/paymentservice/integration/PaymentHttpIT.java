@@ -52,6 +52,7 @@ class PaymentHttpIT {
     }
     @DynamicPropertySource static void properties(DynamicPropertyRegistry registry) {
         registry.add("spring.mongodb.uri", () -> mongoUri);
+        registry.add("payment.events.enabled", () -> false);
         registry.add("payment.order-service-url", upstream::baseUrl);
         registry.add("payment.random-api-url", upstream::baseUrl);
         registry.add("payment.jwt.jwk-set-uri", () -> upstream.baseUrl() + "/.well-known/jwks.json");
@@ -170,7 +171,7 @@ class PaymentHttpIT {
             assertThat(i.getString("name")).isEqualTo("payments_one_success_per_order");
             assertThat(i.getBoolean("unique")).isTrue();
         });
-        assertThat(mongo.getCollection("DATABASECHANGELOG").countDocuments()).isEqualTo(2);
+        assertThat(mongo.getCollection("DATABASECHANGELOG").countDocuments()).isEqualTo(3);
         seed(12,7,"1.00",PaymentStatus.SUCCESS,start);
         assertThatThrownBy(() -> seed(12,7,"2.00",PaymentStatus.SUCCESS,start))
                 .isInstanceOf(org.springframework.dao.DuplicateKeyException.class);

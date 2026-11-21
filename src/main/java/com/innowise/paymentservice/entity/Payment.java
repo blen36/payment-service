@@ -17,6 +17,16 @@ public class Payment {
     @Field(name = "payment_amount", targetType = FieldType.DECIMAL128)
     private BigDecimal paymentAmount;
 
+    // Embedded outbox: payment and pending event are stored in one atomic MongoDB insert.
+    @Field("event_published")
+    private boolean eventPublished;
+    @Field("event_published_at")
+    private Instant eventPublishedAt;
+
+    public boolean isEventPublished() { return eventPublished; }
+    public void setEventPublished(boolean value) { this.eventPublished = value; }
+    public Instant getEventPublishedAt() { return eventPublishedAt; }
+    public void setEventPublishedAt(Instant value) { this.eventPublishedAt = value; }
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
     public Long getOrderId() { return orderId; }

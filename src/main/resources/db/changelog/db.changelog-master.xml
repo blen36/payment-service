@@ -40,4 +40,17 @@
             }]]></mongodb:command>
         </mongodb:runCommand>
     </changeSet>
+    <changeSet id="24-003-payment-outbox" author="payment-service">
+        <mongodb:runCommand><mongodb:command><![CDATA[{
+            "update":"payments", "updates":[{
+                "q":{"event_published":{"$exists":false}},
+                "u":{"$set":{"event_published":false}}, "multi":true
+            }]
+        }]]></mongodb:command></mongodb:runCommand>
+        <mongodb:runCommand><mongodb:command><![CDATA[{
+            "createIndexes":"payments", "indexes":[{
+                "name":"payments_pending_events", "key":{"event_published":1,"timestamp":1,"_id":1}
+            }]
+        }]]></mongodb:command></mongodb:runCommand>
+    </changeSet>
 </databaseChangeLog>

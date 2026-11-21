@@ -154,4 +154,10 @@ class PaymentServiceTest {
         expectStatus(() -> service.totalForCurrentUser(now, now, null, user), HttpStatus.BAD_REQUEST);
         verifyNoInteractions(queries);
     }
+    @Test void canRetryOrderWithPaymentFailedStatus() {
+        when(orders.get(12,"token")).thenReturn(order(7,"PAYMENT_FAILED"));
+        when(random.nextNumber()).thenReturn(2);
+        when(repository.insert(any(Payment.class))).thenAnswer(i -> i.getArgument(0));
+        assertThat(service.create(new CreatePayment(12L),user,"token").status()).isEqualTo(PaymentStatus.SUCCESS);
+    }
 }
